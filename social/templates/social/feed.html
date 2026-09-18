@@ -1,0 +1,503 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Feed | SocialHub</title>
+
+    <link rel="stylesheet"
+          href="{% static 'social/style.css' %}">
+
+    <script src="{% static 'social/script.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SocialHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'feed' %}">
+                Feed
+            </a>
+
+            <a href="{% url 'search_users' %}">
+                Search
+            </a>
+
+            <a href="{% url 'create_post' %}">
+                Create Post
+            </a>
+
+            <a href="{% url 'profile' %}">
+                Profile
+            </a>
+
+            <!-- DARK MODE -->
+            <button
+                type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode">
+                🌙
+            </button>
+
+            <!-- SECURE LOGOUT -->
+            <form
+                method="POST"
+                action="{% url 'logout' %}"
+                class="nav-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="nav-button">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         FEED
+    ========================== -->
+
+    <section class="hero">
+
+        <h1>
+            Welcome, {{ request.user.username }}
+        </h1>
+
+        <p>
+            See what people are sharing on SocialHub.
+        </p>
+
+
+        <!-- CREATE POST -->
+
+        <a href="{% url 'create_post' %}"
+           class="btn">
+
+            + Create Post
+
+        </a>
+
+
+        <br>
+
+
+        <!-- =========================
+             DJANGO MESSAGES
+        ========================== -->
+
+        {% if messages %}
+
+            <div class="messages">
+
+                {% for message in messages %}
+
+                    <div class="message">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =========================
+             POSTS
+        ========================== -->
+
+        {% for post in posts %}
+
+            <article class="post-card">
+
+
+                <!-- =========================
+                     POST HEADER
+                ========================== -->
+
+                <div class="post-header">
+
+                    <div class="post-user">
+
+
+                        <!-- USER DP -->
+
+                        {% if post.user.profile.profile_picture %}
+
+                            <img
+                                src="{{ post.user.profile.profile_picture.url }}"
+                                alt="{{ post.user.username }}"
+                                class="post-dp">
+
+                        {% else %}
+
+                            <div class="post-dp-default">
+                                👤
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- USER INFO -->
+
+                        <div>
+
+                            <h3>
+
+                                {% if post.user == request.user %}
+
+                                    <a href="{% url 'profile' %}">
+                                        {{ post.user.username }}
+                                    </a>
+
+                                {% else %}
+
+                                    <a href="{% url 'user_profile' post.user.username %}">
+                                        {{ post.user.username }}
+                                    </a>
+
+                                {% endif %}
+
+                            </h3>
+
+
+                            <small>
+
+                                {{ post.created_at }}
+
+                                {% if post.updated_at != post.created_at %}
+                                    • Edited
+                                {% endif %}
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         EDIT / DELETE
+                         ONLY POST OWNER
+                    ========================== -->
+
+                    {% if post.user == request.user %}
+
+                        <div class="post-actions">
+
+                            <!-- EDIT -->
+
+                            <a
+                                href="{% url 'edit_post' post.id %}"
+                                class="edit-post-btn">
+
+                                Edit
+
+                            </a>
+
+
+                            <!-- DELETE -->
+
+                            <form
+                                method="POST"
+                                action="{% url 'delete_post' post.id %}"
+                                class="inline-form"
+                                onsubmit="return confirm('Delete this post?');">
+
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="delete-post-btn">
+
+                                    Delete
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =========================
+                     POST CONTENT
+                ========================== -->
+
+                {% if post.content %}
+
+                    <p class="post-text">
+                        {{ post.content }}
+                    </p>
+
+                {% endif %}
+
+
+                <!-- =========================
+                     POST IMAGE
+                ========================== -->
+
+                {% if post.image %}
+
+                    <img
+                        src="{{ post.image.url }}"
+                        alt="Post image"
+                        class="post-image">
+
+                {% endif %}
+
+
+                <!-- =========================
+                     LIKE SECTION
+                ========================== -->
+
+                <div class="like-section">
+
+                    <form
+                        method="POST"
+                        action="{% url 'toggle_like' post.id %}"
+                        class="inline-form">
+
+                        {% csrf_token %}
+
+                        {% if post.id in liked_post_ids %}
+
+                            <button
+                                type="submit"
+                                class="like-btn liked">
+
+                                ❤️ Liked
+
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="submit"
+                                class="like-btn">
+
+                                🤍 Like
+
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+
+                    <span>
+                        {{ post.likes.count }}
+                        {% if post.likes.count == 1 %}
+                            Like
+                        {% else %}
+                            Likes
+                        {% endif %}
+                    </span>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- =========================
+                     COMMENTS
+                ========================== -->
+
+                <div class="comments-section">
+
+                    <h4>
+                        Comments
+                    </h4>
+
+
+                    {% for comment in post.comments.all %}
+
+                        <div class="comment-with-dp">
+
+
+                            <!-- COMMENT USER DP -->
+
+                            {% if comment.user.profile.profile_picture %}
+
+                                <img
+                                    src="{{ comment.user.profile.profile_picture.url }}"
+                                    alt="{{ comment.user.username }}"
+                                    class="comment-dp">
+
+                            {% else %}
+
+                                <div class="comment-dp-default">
+                                    👤
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- COMMENT CONTENT -->
+
+                            <div class="comment-content">
+
+                                <strong>
+
+                                    {% if comment.user == request.user %}
+
+                                        <a href="{% url 'profile' %}">
+                                            {{ comment.user.username }}
+                                        </a>
+
+                                    {% else %}
+
+                                        <a href="{% url 'user_profile' comment.user.username %}">
+                                            {{ comment.user.username }}
+                                        </a>
+
+                                    {% endif %}
+
+                                </strong>
+
+
+                                <p>
+                                    {{ comment.content }}
+                                </p>
+
+
+                                <small>
+                                    {{ comment.created_at }}
+                                </small>
+
+
+                                <!-- DELETE OWN COMMENT -->
+
+                                {% if comment.user == request.user %}
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'delete_comment' comment.id %}"
+                                        class="inline-form comment-delete-form"
+                                        onsubmit="return confirm('Delete this comment?');">
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="delete-comment-btn">
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                    {% empty %}
+
+                        <p class="no-comment">
+                            No comments yet.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- =========================
+                     ADD COMMENT
+                ========================== -->
+
+                <form
+                    method="POST"
+                    action="{% url 'add_comment' post.id %}"
+                    class="comment-form">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="text"
+                        name="content"
+                        maxlength="500"
+                        placeholder="Write a comment..."
+                        required>
+
+                    <button type="submit">
+                        Comment
+                    </button>
+
+                </form>
+
+            </article>
+
+
+        {% empty %}
+
+            <div class="post-card empty-state">
+
+                <h3>
+                    No posts yet
+                </h3>
+
+                <p>
+                    Create the first post on SocialHub.
+                </p>
+
+                <a href="{% url 'create_post' %}"
+                   class="btn">
+
+                    Create Post
+
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        SocialHub • Developed by
+        <strong>Dhiraj Verma</strong>
+
+    </footer>
+
+</body>
+
+</html>

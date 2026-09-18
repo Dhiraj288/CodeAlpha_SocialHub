@@ -1,0 +1,254 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Search Users | SocialHub</title>
+
+    <link rel="stylesheet"
+          href="{% static 'social/style.css' %}">
+
+    <script src="{% static 'social/script.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SocialHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'feed' %}">
+                Feed
+            </a>
+
+            <a href="{% url 'search_users' %}">
+                Search
+            </a>
+
+            <a href="{% url 'create_post' %}">
+                Create Post
+            </a>
+
+            <a href="{% url 'profile' %}">
+                Profile
+            </a>
+
+
+            <!-- DARK MODE -->
+
+            <button
+                type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode">
+
+                🌙
+
+            </button>
+
+
+            <!-- SECURE LOGOUT -->
+
+            <form
+                method="POST"
+                action="{% url 'logout' %}"
+                class="nav-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="nav-button">
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         SEARCH
+    ========================== -->
+
+    <section class="hero">
+
+        <h1>
+            Search Users
+        </h1>
+
+        <p>
+            Find people and connect with them on SocialHub.
+        </p>
+
+
+        <!-- SEARCH FORM -->
+
+        <form
+            method="GET"
+            action="{% url 'search_users' %}"
+            class="search-form">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by username..."
+                maxlength="150"
+                aria-label="Search users">
+
+            <button
+                type="submit"
+                class="btn">
+
+                Search
+
+            </button>
+
+        </form>
+
+
+        <!-- =========================
+             RESULTS
+        ========================== -->
+
+        {% if query %}
+
+            <h2 class="search-heading">
+                Search Results
+            </h2>
+
+
+            {% for user in users %}
+
+                <div class="post-card search-user-card">
+
+                    <div class="post-user">
+
+
+                        <!-- USER DP -->
+
+                        {% if user.profile.profile_picture %}
+
+                            <img
+                                src="{{ user.profile.profile_picture.url }}"
+                                alt="{{ user.username }}"
+                                class="post-dp">
+
+                        {% else %}
+
+                            <div class="post-dp-default">
+                                👤
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- USER INFO -->
+
+                        <div class="search-user-info">
+
+                            <h3>
+
+                                <a href="{% url 'user_profile' user.username %}">
+                                    {{ user.username }}
+                                </a>
+
+                            </h3>
+
+                            {% if user.profile.bio %}
+
+                                <p class="search-user-bio">
+                                    {{ user.profile.bio|truncatechars:80 }}
+                                </p>
+
+                            {% else %}
+
+                                <small>
+                                    SocialHub User
+                                </small>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VIEW PROFILE -->
+
+                    <a
+                        href="{% url 'user_profile' user.username %}"
+                        class="btn-secondary">
+
+                        View Profile
+
+                    </a>
+
+                </div>
+
+
+            {% empty %}
+
+                <div class="post-card empty-state">
+
+                    <h3>
+                        No users found
+                    </h3>
+
+                    <p>
+                        No username matched "{{ query }}".
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <div class="search-tip">
+
+                <p>
+                    Enter a username above to find people.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        SocialHub • Developed by
+        <strong>Dhiraj Verma</strong>
+
+    </footer>
+
+</body>
+
+</html>

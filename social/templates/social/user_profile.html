@@ -1,0 +1,369 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ profile_user.username }} | SocialHub</title>
+
+    <link rel="stylesheet"
+          href="{% static 'social/style.css' %}">
+
+    <script src="{% static 'social/script.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SocialHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'feed' %}">
+                Feed
+            </a>
+
+            <a href="{% url 'search_users' %}">
+                Search
+            </a>
+
+            <a href="{% url 'create_post' %}">
+                Create Post
+            </a>
+
+            <a href="{% url 'profile' %}">
+                My Profile
+            </a>
+
+
+            <!-- DARK MODE -->
+
+            <button
+                type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode">
+
+                🌙
+
+            </button>
+
+
+            <!-- SECURE LOGOUT -->
+
+            <form
+                method="POST"
+                action="{% url 'logout' %}"
+                class="nav-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="nav-button">
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         USER PROFILE
+    ========================== -->
+
+    <section class="hero">
+
+        <div class="post-card profile-card">
+
+
+            <!-- PROFILE PICTURE -->
+
+            {% if profile.profile_picture %}
+
+                <img
+                    src="{{ profile.profile_picture.url }}"
+                    alt="{{ profile_user.username }}"
+                    class="profile-picture">
+
+            {% else %}
+
+                <div class="profile-default-picture">
+                    👤
+                </div>
+
+            {% endif %}
+
+
+            <!-- USERNAME -->
+
+            <h1>
+                {{ profile_user.username }}
+            </h1>
+
+
+            <!-- BIO -->
+
+            <div class="profile-bio">
+
+                <h3>
+                    Bio
+                </h3>
+
+                {% if profile.bio %}
+
+                    <p>
+                        {{ profile.bio }}
+                    </p>
+
+                {% else %}
+
+                    <p>
+                        No bio added yet.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =========================
+                 FOLLOW / UNFOLLOW
+            ========================== -->
+
+            {% if request.user != profile_user %}
+
+                <form
+                    method="POST"
+                    action="{% url 'toggle_follow' profile_user.username %}"
+                    class="follow-form">
+
+                    {% csrf_token %}
+
+                    {% if is_following %}
+
+                        <button
+                            type="submit"
+                            class="btn-secondary">
+
+                            Unfollow
+
+                        </button>
+
+                    {% else %}
+
+                        <button
+                            type="submit"
+                            class="btn">
+
+                            Follow
+
+                        </button>
+
+                    {% endif %}
+
+                </form>
+
+            {% endif %}
+
+
+            <hr>
+
+
+            <!-- =========================
+                 PROFILE STATS
+            ========================== -->
+
+            <div class="profile-stats">
+
+                <span>
+
+                    <strong>
+                        {{ posts.count }}
+                    </strong>
+
+                    Posts
+
+                </span>
+
+
+                <span>
+
+                    <strong>
+                        {{ followers_count }}
+                    </strong>
+
+                    Followers
+
+                </span>
+
+
+                <span>
+
+                    <strong>
+                        {{ following_count }}
+                    </strong>
+
+                    Following
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             USER POSTS
+        ========================== -->
+
+        <h2>
+            Posts
+        </h2>
+
+
+        {% for post in posts %}
+
+            <article class="post-card">
+
+
+                <!-- POST HEADER -->
+
+                <div class="post-user">
+
+
+                    <!-- DP -->
+
+                    {% if profile.profile_picture %}
+
+                        <img
+                            src="{{ profile.profile_picture.url }}"
+                            alt="{{ profile_user.username }}"
+                            class="post-dp">
+
+                    {% else %}
+
+                        <div class="post-dp-default">
+                            👤
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- USER INFO -->
+
+                    <div>
+
+                        <h3>
+                            {{ post.user.username }}
+                        </h3>
+
+                        <small>
+
+                            {{ post.created_at }}
+
+                            {% if post.updated_at != post.created_at %}
+                                • Edited
+                            {% endif %}
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- POST TEXT -->
+
+                {% if post.content %}
+
+                    <p class="post-text">
+                        {{ post.content }}
+                    </p>
+
+                {% endif %}
+
+
+                <!-- POST IMAGE -->
+
+                {% if post.image %}
+
+                    <img
+                        src="{{ post.image.url }}"
+                        alt="Post image"
+                        class="post-image">
+
+                {% endif %}
+
+
+                <!-- LIKE COUNT -->
+
+                <div class="like-section">
+
+                    <span>
+                        ❤️ {{ post.likes.count }}
+
+                        {% if post.likes.count == 1 %}
+                            Like
+                        {% else %}
+                            Likes
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </article>
+
+
+        {% empty %}
+
+            <div class="post-card empty-state">
+
+                <h3>
+                    No posts yet
+                </h3>
+
+                <p>
+                    {{ profile_user.username }} hasn't shared
+                    anything yet.
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        SocialHub • Developed by
+        <strong>Dhiraj Verma</strong>
+
+    </footer>
+
+</body>
+
+</html>

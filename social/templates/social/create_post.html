@@ -1,0 +1,231 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Create Post | SocialHub</title>
+
+    <link rel="stylesheet"
+          href="{% static 'social/style.css' %}">
+
+    <script src="{% static 'social/script.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SocialHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'feed' %}">
+                Feed
+            </a>
+
+            <a href="{% url 'search_users' %}">
+                Search
+            </a>
+
+            <a href="{% url 'create_post' %}">
+                Create Post
+            </a>
+
+            <a href="{% url 'profile' %}">
+                Profile
+            </a>
+
+
+            <!-- DARK MODE -->
+
+            <button
+                type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode">
+
+                🌙
+
+            </button>
+
+
+            <!-- LOGOUT -->
+
+            <form
+                method="POST"
+                action="{% url 'logout' %}"
+                class="nav-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="nav-button">
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         CREATE POST
+    ========================== -->
+
+    <div class="auth-container">
+
+        <div class="auth-box create-post-box">
+
+            <h2>
+                Create Post
+            </h2>
+
+            <p>
+                Share your thoughts or a photo with the SocialHub community.
+            </p>
+
+
+            <!-- =========================
+                 MESSAGES
+            ========================== -->
+
+            {% if messages %}
+
+                <div class="messages">
+
+                    {% for message in messages %}
+
+                        <div class="message">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =========================
+                 CREATE POST FORM
+            ========================== -->
+
+            <form
+                method="POST"
+                enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+
+                <!-- TEXT -->
+
+                <label for="post-content">
+                    What's on your mind?
+                </label>
+
+                <textarea
+                    id="post-content"
+                    name="content"
+                    rows="6"
+                    maxlength="1000"
+                    placeholder="Share your thoughts..."
+                ></textarea>
+
+
+                <!-- IMAGE -->
+
+                <label for="post-image">
+                    Add Photo
+                </label>
+
+                <input
+                    type="file"
+                    id="post-image"
+                    name="image"
+                    accept="image/*">
+
+
+                <!-- =========================
+                     IMAGE PREVIEW
+                ========================== -->
+
+                <div
+                    id="image-preview-container"
+                    class="image-preview-container">
+
+                    <img
+                        id="image-preview"
+                        class="image-preview"
+                        alt="Selected image preview">
+
+                    <button
+                        type="button"
+                        id="remove-preview"
+                        class="remove-preview-btn">
+
+                        Remove Photo
+
+                    </button>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    class="btn">
+
+                    Create Post
+
+                </button>
+
+            </form>
+
+
+            <!-- BACK -->
+
+            <div class="form-back-link">
+
+                <a href="{% url 'feed' %}">
+                    ← Back to Feed
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        SocialHub • Developed by
+        <strong>Dhiraj Verma</strong>
+
+    </footer>
+
+</body>
+
+</html>

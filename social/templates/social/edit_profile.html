@@ -1,0 +1,253 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Profile | SocialHub</title>
+
+    <link rel="stylesheet"
+          href="{% static 'social/style.css' %}">
+
+    <script src="{% static 'social/script.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            SocialHub
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'feed' %}">
+                Feed
+            </a>
+
+            <a href="{% url 'search_users' %}">
+                Search
+            </a>
+
+            <a href="{% url 'create_post' %}">
+                Create Post
+            </a>
+
+            <a href="{% url 'profile' %}">
+                Profile
+            </a>
+
+
+            <!-- DARK MODE -->
+
+            <button
+                type="button"
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode">
+
+                🌙
+
+            </button>
+
+
+            <!-- SECURE LOGOUT -->
+
+            <form
+                method="POST"
+                action="{% url 'logout' %}"
+                class="nav-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="nav-button">
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         EDIT PROFILE
+    ========================== -->
+
+    <div class="auth-container">
+
+        <div class="auth-box">
+
+            <h2>
+                Edit Profile
+            </h2>
+
+            <p>
+                Update your SocialHub profile information.
+            </p>
+
+
+            <!-- =========================
+                 CURRENT DP
+            ========================== -->
+
+            <div class="profile-preview-area">
+
+                {% if profile.profile_picture %}
+
+                    <img
+                        src="{{ profile.profile_picture.url }}"
+                        alt="{{ request.user.username }}"
+                        class="profile-picture"
+                        id="current-profile-picture">
+
+                {% else %}
+
+                    <div
+                        class="profile-default-picture"
+                        id="default-profile-picture">
+
+                        👤
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- NEW DP PREVIEW -->
+
+                <img
+                    id="profile-image-preview"
+                    class="profile-picture profile-image-preview"
+                    alt="New profile picture preview">
+
+            </div>
+
+
+            <!-- =========================
+                 FORM
+            ========================== -->
+
+            <form
+                method="POST"
+                enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+
+                <!-- USERNAME DISPLAY -->
+
+                <label>
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    value="{{ request.user.username }}"
+                    disabled>
+
+
+                <!-- EMAIL DISPLAY -->
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    value="{{ request.user.email }}"
+                    disabled>
+
+
+                <!-- PROFILE PICTURE -->
+
+                <label for="profile-picture-input">
+                    Change Profile Picture
+                </label>
+
+                <input
+                    type="file"
+                    id="profile-picture-input"
+                    name="profile_picture"
+                    accept="image/*">
+
+
+                <!-- BIO -->
+
+                <label for="profile-bio">
+                    Bio
+                </label>
+
+                <textarea
+                    id="profile-bio"
+                    name="bio"
+                    rows="5"
+                    maxlength="200"
+                    placeholder="Tell people something about yourself..."
+                >{{ profile.bio }}</textarea>
+
+
+                <!-- CHARACTER INFO -->
+
+                <p class="form-help">
+                    Maximum 200 characters.
+                </p>
+
+
+                <!-- SAVE -->
+
+                <button
+                    type="submit"
+                    class="btn">
+
+                    Save Changes
+
+                </button>
+
+            </form>
+
+
+            <!-- BACK -->
+
+            <div class="form-back-link">
+
+                <a href="{% url 'profile' %}">
+                    ← Back to Profile
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        SocialHub • Developed by
+        <strong>Dhiraj Verma</strong>
+
+    </footer>
+
+</body>
+
+</html>
